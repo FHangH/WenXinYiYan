@@ -195,5 +195,8 @@ LogWenXin: Warning: ====== WenXinYiYan End ======
 ```
 
 这个我承认我自己写的糙了，我不会写
+
 ![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/7b9d9c2d-3b4f-4deb-8385-94bc0c4badf7)
+
+这里演示的是流式响应过程中，中断流式响应的结果，不会调用OnFail，回调OnCompleted，回调结果默认直接为空
 ![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/10c411ee-97ba-4159-b5a6-0cbd3e1a595c)
