@@ -19,5 +19,180 @@
 流式响应很粗糙，我是说文心一言，不像GPT那样细分，没那么丝滑
 ![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/d730186b-5a64-48c8-a23b-bebb07c07497)
 
+```log
+LogWenXin: Warning: ====== WenXinYiYan Start ======
+LogWenXin: Warning: Request Stream Process
+LogWenXin: Warning: Request Stream Complete
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = C++中的单例模式可以分为懒汉式和饿汉式两种实现方式。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = 懒汉式单例模式在第一次使用时才创建对象，而饿汉式单例模式则在程序启动时就创建对象。同时，为了线程安全，还需要考虑单例对象的线程安全问题。
+1. 懒汉式单例模式
+懒汉式单例模式是一种延迟加载的方式，在第一次使用时才创建对象。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = 可以通过以下代码实现：
+```cpp
+class Singleton {
+public:
+    static Singleton& getInstance() {
+        static Singleton instance;
+        return instance;
+    }
+private:
+    Singleton() {}
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+};
+```
+在这个实现中，getInstance()函数是一个静态函数，用于获取单例对象。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = getInstance()函数内部使用静态局部变量instance来存储单例对象，保证在多线程环境下只有一个实例存在。
+2. 饿汉式单例模式
+饿汉式单例模式是一种在程序启动时就创建对象的方式。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = 可以通过以下代码实现：
+```cpp
+class Singleton {
+public:
+    static Singleton& getInstance() {
+        static Singleton instance;
+        return instance;
+    }
+private:
+    Singleton() {}
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+};
+```
+在这个实现中，getInstance()函数是一个静态函数，用于获取单例对象。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = getInstance()函数内部使用静态局部变量instance来存储单例对象，保证在多线程环境下只有一个实例存在。
+3. 线程安全
+在多线程环境下，为了保证单例对象的线程安全，需要采取一些措施。
+* 静态局部变量：在getInstance()函数内部使用静态局部变量来存储单例对象，这样在多线程环境下只有一个实例存在。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = 
+* 线程安全的数据结构：可以使用互斥锁、信号量等线程安全的数据结构来保证单例对象的线程安全。
+* 静态成员变量初始化：在静态局部变量instance的初始化中，可以加上静态初始化语法，这样在多线程环境下也可以保证只有一个实例存在。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = 
+例如：
+```cpp
+class Singleton {
+public:
+    static Singleton& getInstance() {
+        static Singleton instance;
+        return instance;
+    }
+private:
+    Singleton() {}
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+    static Singleton instance;
+};
+Singleton Singleton::instance;
+int main() {
+    // 创建多个线程
+    std::thread t1([](){
+        Singleton& instance = Singleton::getInstance();
+    });
+    std::thread t2([](){
+        Singleton& instance = Singleton::getInstance();
+    });
+    t1.join();
+    t2.join();
+    return 0;
+}
+```
+在这个实现中，getInstance()函数内部使用静态局部变量instance来存储单例对象，这样在多线程环境下只有一个实例存在。
+LogWenXin: Warning: Request Process By Stream
+LogWenXin: Warning: Deserialize Stream Response
+LogWenXin: Warning: Stream Result = 同时，在静态局部变量instance的初始化中，使用了静态初始化语法，这样可以保证在多线程环境下也可以只有一个实例存在。
+LogWenXin: Warning: Response Stream Success
+LogWenXin: Warning: Request Stream Result = assistant : C++中的单例模式可以分为懒汉式和饿汉式两种实现方式。懒汉式单例模式在第一次使用时才创建对象，而饿汉式单例模式则在程序启动时就创建对象。同时，为了线程安全，还需要考虑单例对象的线程安全问题。
+1. 懒汉式单例模式
+懒汉式单例模式是一种延迟加载的方式，在第一次使用时才创建对象。可以通过以下代码实现：
+```cpp
+class Singleton {
+public:
+    static Singleton& getInstance() {
+        static Singleton instance;
+        return instance;
+    }
+private:
+    Singleton() {}
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+};
+```
+在这个实现中，getInstance()函数是一个静态函数，用于获取单例对象。getInstance()函数内部使用静态局部变量instance来存储单例对象，保证在多线程环境下只有一个实例存在。
+2. 饿汉式单例模式
+饿汉式单例模式是一种在程序启动时就创建对象的方式。可以通过以下代码实现：
+```cpp
+class Singleton {
+public:
+    static Singleton& getInstance() {
+        static Singleton instance;
+        return instance;
+    }
+private:
+    Singleton() {}
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+};
+```
+在这个实现中，getInstance()函数是一个静态函数，用于获取单例对象。getInstance()函数内部使用静态局部变量instance来存储单例对象，保证在多线程环境下只有一个实例存在。
+3. 线程安全
+在多线程环境下，为了保证单例对象的线程安全，需要采取一些措施。
+* 静态局部变量：在getInstance()函数内部使用静态局部变量来存储单例对象，这样在多线程环境下只有一个实例存在。
+* 线程安全的数据结构：可以使用互斥锁、信号量等线程安全的数据结构来保证单例对象的线程安全。
+* 静态成员变量初始化：在静态局部变量instance的初始化中，可以加上静态初始化语法，这样在多线程环境下也可以保证只有一个实例存在。
+例如：
+```cpp
+class Singleton {
+public:
+    static Singleton& getInstance() {
+        static Singleton instance;
+        return instance;
+    }
+private:
+    Singleton() {}
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+    static Singleton instance;
+};
+Singleton Singleton::instance;
+int main() {
+    // 创建多个线程
+    std::thread t1([](){
+        Singleton& instance = Singleton::getInstance();
+    });
+    std::thread t2([](){
+        Singleton& instance = Singleton::getInstance();
+    });
+    t1.join();
+    t2.join();
+    return 0;
+}
+```
+在这个实现中，getInstance()函数内部使用静态局部变量instance来存储单例对象，这样在多线程环境下只有一个实例存在。同时，在静态局部变量instance的初始化中，使用了静态初始化语法，这样可以保证在多线程环境下也可以只有一个实例存在。
+LogWenXin: Warning: ====== WenXinYiYan End ======
+```
+
+
 这个我承认我自己写的糙了，我不会写
 ![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/7b9d9c2d-3b4f-4deb-8385-94bc0c4badf7)
