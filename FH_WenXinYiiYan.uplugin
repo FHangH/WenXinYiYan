@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "FH_WenXinYiiYan",
+	"Description": "WenXinYiYanPlugin",
+	"Category": "FH",
+	"CreatedBy": "FangH",
+	"CreatedByURL": "fangh.space",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "FH_WenXinYiiYan",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
