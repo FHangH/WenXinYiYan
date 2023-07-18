@@ -15,11 +15,13 @@
 
 文心一言的role里，只有user和assistant，不像GPT有system，官方的prompt看着难受，看不懂，懒得用了，只能这样了
 ![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/31eddf5b-b038-45a9-a7c6-b3460be08f5f)
+![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/e218a4bc-3d19-4882-a58d-3ec16c0d41ec)
 
 流式响应很粗糙，我是说文心一言，不像GPT那样细分，没那么丝滑
 ![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/d730186b-5a64-48c8-a23b-bebb07c07497)
 
 :::log
+[
 LogWenXin: Warning: ====== WenXinYiYan Start ======
 LogWenXin: Warning: Request Stream Process
 LogWenXin: Warning: Request Stream Complete
@@ -191,8 +193,10 @@ int main() {
 ```
 在这个实现中，getInstance()函数内部使用静态局部变量instance来存储单例对象，这样在多线程环境下只有一个实例存在。同时，在静态局部变量instance的初始化中，使用了静态初始化语法，这样可以保证在多线程环境下也可以只有一个实例存在。
 LogWenXin: Warning: ====== WenXinYiYan End ======
+]
 :::
 
 
 这个我承认我自己写的糙了，我不会写
 ![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/7b9d9c2d-3b4f-4deb-8385-94bc0c4badf7)
+![image](https://github.com/FHangH/WenXinYiYan/assets/49579735/10c411ee-97ba-4159-b5a6-0cbd3e1a595c)
