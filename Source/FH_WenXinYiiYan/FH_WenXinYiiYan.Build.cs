@@ -31,6 +31,7 @@ public class FH_WenXinYiiYan : ModuleRules
 				"Core",
 				"HTTP",
 				"Json", 
+				"JsonUtilities",
 				"Engine",
 				"Projects"
 				// ... add other public dependencies that you statically link with here ...

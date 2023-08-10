@@ -6,9 +6,9 @@
 
 UGetAccessToken* UGetAccessToken::GetAccessToken(FString API, FString Secret)
 {
-	const auto RequestToken = NewObject<UGetAccessToken>();
-	RequestToken->OnHttpsRequestToken(API, Secret);
-	return RequestToken;
+	const auto RequestTokenObject = NewObject<UGetAccessToken>();
+	RequestTokenObject->OnHttpsRequestToken(API, Secret);
+	return RequestTokenObject;
 }
 
 void UGetAccessToken::OnHttpsRequestToken(const FString& API, const FString& Secret)
@@ -20,19 +20,28 @@ void UGetAccessToken::OnHttpsRequestToken(const FString& API, const FString& Sec
 			TEXT("https://aip.baidubce.com/oauth/2.0/token?client_id=%s&client_secret=%s&grant_type=client_credentials"),
 			*API, *Secret);
 
-	const auto Request = FHttpModule::Get().CreateRequest();
-	Request->SetVerb(TEXT("POST"));
-	Request->SetURL(URL);
-	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-	Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
+	RequestToken = FHttpModule::Get().CreateRequest();
+	RequestToken->SetVerb(TEXT("POST"));
+	RequestToken->SetURL(URL);
+	RequestToken->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	RequestToken->SetHeader(TEXT("Accept"), TEXT("application/json"));
 
-	Request->OnProcessRequestComplete().BindUObject(this, &UGetAccessToken::OnDeserializeResponse);
+	RequestToken->OnProcessRequestComplete().BindUObject(this, &UGetAccessToken::OnDeserializeResponse);
 
-	if (Request->ProcessRequest())
+	if (RequestToken->ProcessRequest() || IsRequestProcessing())
 	{
 		UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan Start ======"));
 		UE_LOG(LogWenXin, Warning, TEXT("Request Process"));
 		FHttpModule::Get().GetHttpManager().Tick(0.f);
+		
+		if (RequestToken->GetStatus() == EHttpRequestStatus::Failed)
+		{
+			OnFail.Broadcast("null");
+			UE_LOG(LogWenXin, Warning, TEXT("Request Fail"));
+			UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
+		}
+	
+		RemoveFromRoot();
 	}
 	UE_LOG(LogWenXin, Warning, TEXT("Request Complete"));
 }
@@ -62,6 +71,6 @@ void UGetAccessToken::OnDeserializeResponse(FHttpRequestPtr Request, FHttpRespon
 		UE_LOG(LogWenXin, Warning, TEXT("Request Result = %s"), *Result);
 		UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
 	}
-    
+
 	RemoveFromRoot();
 }

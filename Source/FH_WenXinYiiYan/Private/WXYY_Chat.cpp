@@ -1,5 +1,6 @@
 ﻿#include "WXYY_Chat.h"
 #include "HttpManager.h"
+#include "HttpModule.h"
 #include "Interfaces/IHttpResponse.h"
 
 // Send Chat Message
@@ -7,12 +8,8 @@ USendChatMessage* USendChatMessage::SendChatMessage(FChatMessage ChatMessage)
 {
 	const auto RequestObject = NewObject<USendChatMessage>();
 	RequestObject->OnHttpsRequestChatMessage(ChatMessage);
+	SendChatHandler = RequestObject;
 	return RequestObject;
-}
-
-void USendChatMessage::CancelRequest()
-{
-	RequestChat->CancelRequest();
 }
 
 void USendChatMessage::OnHttpsRequestChatMessage(const FChatMessage& ChatMessage)
@@ -36,11 +33,21 @@ void USendChatMessage::OnHttpsRequestChatMessage(const FChatMessage& ChatMessage
 
 	RequestChat->OnProcessRequestComplete().BindUObject(this, &USendChatMessage::OnDeserializeResponse);
 
-	if (RequestChat->ProcessRequest())
+	if (RequestChat->ProcessRequest() || IsRequestProcessing())
 	{
 		UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan Start ======"));
 		UE_LOG(LogWenXin, Warning, TEXT("Request Process"));
 		FHttpModule::Get().GetHttpManager().Tick(0.f);
+
+		if (RequestChat->GetStatus() == EHttpRequestStatus::Failed)
+		{
+			FChatMessage Message;
+			Message.Role = ERole::ER_Assistant;
+			Message.Content = "";
+			OnFail.Broadcast(Message);
+			UE_LOG(LogWenXin, Warning, TEXT("Request Fail"));
+			UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
+		}
 	}
 	UE_LOG(LogWenXin, Warning, TEXT("Request Complete"));
 }
@@ -60,7 +67,16 @@ void USendChatMessage::OnDeserializeResponse(FHttpRequestPtr Request, FHttpRespo
 			UE_LOG(LogWenXin, Warning, TEXT("Deserialize Response"));
 			ChatMessage.Role = ERole::ER_Assistant;
 			ChatMessage.Content = JsonObject->GetStringField("result");
-			OnSuccess.Broadcast(ChatMessage);
+			if (ChatMessage.Content == "")
+			{
+				OnFail.Broadcast(ChatMessage);
+				UE_LOG(LogWenXin, Warning, TEXT("Request Result = %s : null"), *UWXYY::ConverToStr(ChatMessage.Role));
+				UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
+				
+				RemoveFromRoot();
+				return;
+			}
+			OnCompleted.Broadcast(ChatMessage);
 			UE_LOG(LogWenXin, Warning, TEXT("Request Result = %s : %s"), *UWXYY::ConverToStr(ChatMessage.Role), *ChatMessage.Content);
 			UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
 		}
@@ -77,17 +93,29 @@ void USendChatMessage::OnDeserializeResponse(FHttpRequestPtr Request, FHttpRespo
 	RemoveFromRoot();
 }
 
+bool USendChatMessage::IsRequestProcessing()
+{
+	if (!SendChatHandler || !SendChatHandler->RequestChat) return false;
+	return SendChatHandler->RequestChat->GetStatus() == EHttpRequestStatus::Processing;
+}
+
+void USendChatMessage::CancelMessageRequest()
+{
+	if (!SendChatHandler || !SendChatHandler->RequestChat) return;
+	if (SendChatHandler->RequestChat->GetStatus() == EHttpRequestStatus::Processing)
+	{
+		SendChatHandler->RequestChat->CancelRequest();
+		UE_LOG(LogWenXin, Warning, TEXT("Request Cancle"))
+	}
+}
+
 // Send Chat Message By Stream
 USendChatMessageByStream* USendChatMessageByStream::SendChatMessageByStream(FChatMessage ChatMessage)
 {
 	const auto RequestObject = NewObject<USendChatMessageByStream>();
 	RequestObject->OnHttpsRequestChatMessage(ChatMessage);
+	SendStreamChatHandler = RequestObject;
 	return RequestObject;
-}
-
-void USendChatMessageByStream::CancelRequestStream()
-{
-	RequestChat->CancelRequest();
 }
 
 void USendChatMessageByStream::OnHttpsRequestChatMessage(const FChatMessage& ChatMessage)
@@ -116,15 +144,23 @@ void USendChatMessageByStream::OnHttpsRequestChatMessage(const FChatMessage& Cha
 	RequestChat->OnRequestProgress().BindUObject(this, &USendChatMessageByStream::OnUpdateResponse);
 	RequestChat->OnProcessRequestComplete().BindUObject(this, &USendChatMessageByStream::OnCompletedResponse);
 
-	if (RequestChat->ProcessRequest())
+	if (RequestChat->ProcessRequest() || IsRequestProcessing())
 	{
 		UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan Start ======"));
 		UE_LOG(LogWenXin, Warning, TEXT("Request Stream Process"));
 		FHttpModule::Get().GetHttpManager().Tick(0.f);
+
+		if (RequestChat->GetStatus() == EHttpRequestStatus::Failed)
+		{
+			FChatMessage Message;
+			Message.Role = ERole::ER_Assistant;
+			Message.Content = "";
+			OnFail.Broadcast(Message);
+			UE_LOG(LogWenXin, Warning, TEXT("Request Stream Fail"));
+			UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
+		}
 	}
 	UE_LOG(LogWenXin, Warning, TEXT("Request Stream Complete"));
-
-	RemoveFromRoot();
 }
 
 void USendChatMessageByStream::OnUpdateResponse(FHttpRequestPtr HttpRequest, int32 BytesSent, int32 BytesReceived)
@@ -175,6 +211,15 @@ void USendChatMessageByStream::OnCompletedResponse(FHttpRequestPtr Request, FHtt
 		UE_LOG(LogWenXin, Warning, TEXT("Response Stream Success"));
 		ChatMessage.Role = ERole::ER_Assistant;
 		ChatMessage.Content = AllResult;
+		if (ChatMessage.Content == "")
+		{
+			OnFail.Broadcast(ChatMessage);
+			UE_LOG(LogWenXin, Warning, TEXT("Stream Result = %s : null"), *UWXYY::ConverToStr(ChatMessage.Role));
+			UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
+
+			RemoveFromRoot();
+			return;
+		}
 		OnCompleted.Broadcast(ChatMessage);
 		UE_LOG(LogWenXin, Warning, TEXT("Request Stream Result = %s : %s"), *UWXYY::ConverToStr(ChatMessage.Role), *ChatMessage.Content);
 		UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
@@ -186,5 +231,23 @@ void USendChatMessageByStream::OnCompletedResponse(FHttpRequestPtr Request, FHtt
 		OnFail.Broadcast(ChatMessage);
 		UE_LOG(LogWenXin, Warning, TEXT("Request Stream Result = %s : null"), *UWXYY::ConverToStr(ChatMessage.Role));
 		UE_LOG(LogWenXin, Warning, TEXT("====== WenXinYiYan End ======"));
+	}
+
+	RemoveFromRoot();
+}
+
+bool USendChatMessageByStream::IsRequestProcessing()
+{
+	if (!SendStreamChatHandler || !SendStreamChatHandler->RequestChat) return false;
+	return SendStreamChatHandler->RequestChat->GetStatus() == EHttpRequestStatus::Processing;
+}
+
+void USendChatMessageByStream::CancelStreamMessageRequest()
+{
+	if (!SendStreamChatHandler || !SendStreamChatHandler->RequestChat) return;
+	if (SendStreamChatHandler->RequestChat->GetStatus() == EHttpRequestStatus::Processing)
+	{
+		SendStreamChatHandler->RequestChat->CancelRequest();
+		UE_LOG(LogWenXin, Warning, TEXT("Request Cancle"))
 	}
 }

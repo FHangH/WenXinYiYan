@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "HttpModule.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "WXYY.h"
 #include "Interfaces/IHttpRequest.h"
@@ -16,7 +15,7 @@ class FH_WENXINYIIYAN_API USendChatMessage : public UBlueprintAsyncActionBase
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FResponseChatMessage OnSuccess;
+	FResponseChatMessage OnCompleted;
 
 	UPROPERTY(BlueprintAssignable)
 	FResponseChatMessage OnFail;
@@ -25,14 +24,17 @@ public:
 	static USendChatMessage* SendChatMessage(FChatMessage ChatMessage);
 	
 	UFUNCTION(BlueprintCallable, Category="FH|WXYY")
-	static void CancelRequest();
+	static void CancelMessageRequest();
 
 private:
-	static inline TSharedRef<IHttpRequest, ESPMode::ThreadSafe> RequestChat = FHttpModule::Get().CreateRequest();;
+	inline static USendChatMessage* SendChatHandler = nullptr;
+	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> RequestChat;
 	
 	void OnHttpsRequestChatMessage(const FChatMessage& ChatMessage);
 	
 	void OnDeserializeResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, const bool Success);
+
+	static bool IsRequestProcessing();
 };
 
 UCLASS()
@@ -54,13 +56,15 @@ public:
 	static USendChatMessageByStream* SendChatMessageByStream(FChatMessage ChatMessage);
 
 	UFUNCTION(BlueprintCallable, Category="FH|WXYY")
-	static void CancelRequestStream();
+	static void CancelStreamMessageRequest();
 
 private:
 	FString AllResult;
 	FString AllResponse;
 	FString TempResponse;
-	static inline TSharedRef<IHttpRequest, ESPMode::ThreadSafe> RequestChat = FHttpModule::Get().CreateRequest();;
+	
+	inline static USendChatMessageByStream* SendStreamChatHandler = nullptr;
+	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> RequestChat;
 	
 	void OnHttpsRequestChatMessage(const FChatMessage& ChatMessage);
 
@@ -69,4 +73,6 @@ private:
 	void OnDeserializeResponseUpdate();
 	
 	void OnCompletedResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, const bool Success);
+
+	static bool IsRequestProcessing();
 };
